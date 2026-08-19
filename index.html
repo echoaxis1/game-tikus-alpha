@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pukul Tikus! - Whack-a-Mole Game</title>
+  <meta name="description" content="Game pukul tikus seru! Pukul tikus sebanyak-banyaknya, hindari memukul bom dan jaga 3 nyawamu.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Custom Hammer Cursor Element -->
+  <div id="custom-cursor" class="custom-cursor">
+    <div class="hammer-inner" id="cursor-weapon-inner">
+      <svg viewBox="0 0 100 100" class="hammer-svg">
+        <!-- Wood Handle -->
+        <rect x="42" y="35" width="16" height="60" rx="6" fill="#8B4513" stroke="#4A2508" stroke-width="3" />
+        <rect x="44" y="55" width="12" height="6" rx="2" fill="#A0522D" />
+        <rect x="44" y="70" width="12" height="6" rx="2" fill="#A0522D" />
+        <!-- Metal Head -->
+        <rect x="15" y="10" width="70" height="30" rx="6" fill="#718096" stroke="#2D3748" stroke-width="3.5" />
+        <rect x="18" y="13" width="64" height="6" rx="3" fill="#A0AEC0" />
+        <!-- Metallic Face Caps -->
+        <rect x="10" y="7" width="10" height="36" rx="3" fill="#4A5568" stroke="#2D3748" stroke-width="2" />
+        <rect x="80" y="7" width="10" height="36" rx="3" fill="#4A5568" stroke="#2D3748" stroke-width="2" />
+      </svg>
+    </div>
+  </div>
+
+  <div class="game-wrapper" id="game-container">
+    <!-- Top HUD Bar -->
+    <header class="game-hud">
+      <div class="hud-item score-container">
+        <span class="hud-label">SKOR</span>
+        <span class="hud-value" id="score-display">0</span>
+      </div>
+
+      <div class="hud-item title-container">
+        <h1 class="game-title" id="game-main-title">🔨 PUKUL TIKUS</h1>
+      </div>
+
+      <div class="hud-item coin-container" title="Koin Bantuan">
+        <span class="hud-label">KOIN</span>
+        <div class="coin-badge-hud">
+          <span class="coin-icon-hud">🪙</span>
+          <span class="hud-value coin-value" id="coin-display">0</span>
+        </div>
+      </div>
+
+      <div class="hud-item hearts-container">
+        <span class="hud-label">NYAWA</span>
+        <div class="hearts-list" id="hearts-list">
+          <span class="heart active" id="heart-1">❤️</span>
+          <span class="heart active" id="heart-2">❤️</span>
+          <span class="heart active" id="heart-3">❤️</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sub HUD (Combo, Mode & High Score) -->
+    <div class="sub-hud">
+      <div class="combo-badge" id="combo-badge">Combo x<span id="combo-count">1</span>!</div>
+      <div class="mode-badge" id="current-mode-badge">🌱 Mudah</div>
+      <div class="weapon-badge" id="equipped-weapon-badge">🔨 Palu Kayu</div>
+      <div class="high-score-badge">🏆 Rekor: <span id="high-score-display">0</span></div>
+      <div class="hud-controls">
+        <button class="control-btn" id="menu-btn-hud" title="Kembali ke Menu Utama">🏠 Menu</button>
+        <button class="control-btn" id="achievements-btn-hud" title="Lihat Piagam Penghargaan">🏅 Piagam</button>
+        <button class="control-btn" id="sound-btn" title="Toggle Suara">🔊 Aktif</button>
+      </div>
+    </div>
+
+    <!-- Power-Up Items Action Bar (Fitur Bantuan) -->
+    <div class="help-action-bar" id="help-action-bar">
+      <span class="help-bar-title">⚡ FITUR BANTUAN:</span>
+      <div class="help-buttons">
+        <button class="help-btn" id="btn-power-hammer" data-power="super_hammer" title="Tekan [1] untuk beli Palu Kebal Bom">
+          <span class="help-key-hint">1</span>
+          <span class="help-btn-icon">⚡</span>
+          <div class="help-btn-info">
+            <span class="help-btn-name">Palu Kebal Bom</span>
+            <span class="help-btn-cost">🪙 150 Koin</span>
+          </div>
+        </button>
+        <button class="help-btn" id="btn-power-rocket" data-power="rocket" title="Tekan [2] untuk beli Roket Nuke (7x Tembakan)">
+          <span class="help-key-hint">2</span>
+          <span class="help-btn-icon">🚀</span>
+          <div class="help-btn-info">
+            <span class="help-btn-name">Roket (7x)</span>
+            <span class="help-btn-cost">🪙 125 Koin</span>
+          </div>
+        </button>
+        <button class="help-btn" id="btn-power-laser" data-power="laser" title="Tekan [3] untuk beli Laser Kebal Bom (8 Detik)">
+          <span class="help-key-hint">3</span>
+          <span class="help-btn-icon">🔫</span>
+          <div class="help-btn-info">
+            <span class="help-btn-name">Laser Kebal Bom</span>
+            <span class="help-btn-cost">🪙 100 Koin</span>
+          </div>
+        </button>
+        <button class="help-btn" id="btn-power-heart" data-power="heart" title="Tekan [4] untuk beli Tambah Darah (+1 ❤️)">
+          <span class="help-key-hint">4</span>
+          <span class="help-btn-icon">❤️</span>
+          <div class="help-btn-info">
+            <span class="help-btn-name">Tambah Darah</span>
+            <span class="help-btn-cost">🪙 200 Koin</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Super Power Active Banner (10s Countdown) -->
+    <div class="powerup-bar" id="powerup-bar">
+      <div class="powerup-info">
+        <span class="powerup-icon" id="powerup-icon">⚡</span>
+        <span class="powerup-name" id="powerup-name">PALU SUPER AKTIF! (KEBAL BOM)</span>
+        <span class="powerup-timer" id="powerup-timer">10s</span>
+      </div>
+      <div class="powerup-progress-track">
+        <div class="powerup-progress-fill" id="powerup-fill"></div>
+      </div>
+    </div>
+
+    <!-- Active Weapon Skill Bar (Khusus Senjata Pedang & Magnet Mace) -->
+    <div class="weapon-skill-bar" id="weapon-skill-bar">
+      <div class="skill-info-left">
+        <div class="skill-title-row">
+          <span class="skill-title-icon" id="skill-title-icon">⚔️</span>
+          <span class="skill-name" id="skill-title-name">SKILL: SLASH TEBASAN 3 PETAK</span>
+        </div>
+        <span class="skill-desc" id="skill-title-desc">Tebas 3 petak sekaligus! (Tekan [Q] atau [Spasi])</span>
+      </div>
+      <button class="btn-skill-slash ready" id="btn-skill-slash" title="Aktifkan Skill Khusus (Tekan [Q] atau [Spasi])">
+        <span class="skill-btn-key">Q / Spasi</span>
+        <span class="skill-btn-icon" id="skill-btn-icon">🗡️⚡</span>
+        <span class="skill-btn-label" id="skill-btn-label">SLASH [SIAP]</span>
+        <div class="skill-cd-progress" id="skill-cd-progress"></div>
+      </button>
+    </div>
+
+    <!-- The 3x3 Mole Holes Grid -->
+    <main class="grid-container" id="grid">
+      <!-- 9 Holes generated by JS or static -->
+      <div class="hole" data-index="0"><div class="hole-dirt"></div><div class="character-slot"></div><div class="hole-front"></div></div>
+      <div class="hole" data-index="1"><div class="hole-dirt"></div><div class="character-slot"></div><div class="hole-front"></div></div>
+      <div class="hole" data-index="2"><div class="hole-dirt"></div><div class="character-slot"></div><div class="hole-front"></div></div>
+      <div class="hole" data-index="3"><div class="hole-dirt"></div><div class="character-slot"></div><div class="hole-front"></div></div>
+      <div class="hole" data-index="4"><div class="hole-dirt"></div><div class="character-slot"></div><div class="hole-front"></div></div>
+      <div class="hole" data-index="5"><div class="hole-dirt"></div><div class="character-slot"></div><div class="hole-front"></div></div>
+      <div class="hole" data-index="6"><div class="hole-dirt"></div><div class="character-slot"></div><div class="hole-front"></div></div>
+      <div class="hole" data-index="7"><div class="hole-dirt"></div><div class="character-slot"></div><div class="hole-front"></div></div>
+      <div class="hole" data-index="8"><div class="hole-dirt"></div><div class="character-slot"></div><div class="hole-front"></div></div>
+    </main>
+
+    <!-- Instructions banner -->
+    <footer class="game-footer">
+      <p class="instruction-text">
+        🐭 Pukul Tikus &bull; 💣 Hindari Bom &bull; 🪙 Raih 100 Skor untuk Koin Bantuan!
+      </p>
+    </footer>
+
+    <!-- Overlay Screens (Start & Game Over) -->
+    <div class="overlay active" id="start-overlay">
+      <div class="modal-card">
+        <div class="modal-icon">🐭🔨🪙</div>
+        <h2>Ayo Pukul Tikus!</h2>
+        <p>Pukul tikus nakal, hindari bom, dan kumpulkan koin tiap kelipatan 100 skor untuk membeli <strong>Fitur Bantuan</strong>!</p>
+        
+        <!-- Difficulty & Event Selection with High Scores -->
+        <div class="difficulty-section">
+          <div class="mode-tab-nav">
+            <button class="mode-tab-btn active" id="tab-btn-regular" data-tab="regular">🏆 Mode Biasa</button>
+            <button class="mode-tab-btn" id="tab-btn-events" data-tab="events">🎉 Menu Event <span class="event-badge-tag">HOT!</span></button>
+          </div>
+
+          <!-- Regular Modes Tab Content -->
+          <div class="tab-content active" id="tab-content-regular">
+            <div class="difficulty-buttons">
+              <button class="diff-btn active" data-mode="easy">
+                <span class="diff-icon">🌱</span>
+                <span class="diff-title">Mudah</span>
+                <span class="diff-desc">+15 🪙 / 100 Skor</span>
+                <span class="diff-hs-tag">🏆 Rekor: <strong id="menu-hs-easy">0</strong></span>
+              </button>
+              <button class="diff-btn" data-mode="medium">
+                <span class="diff-icon">⚡</span>
+                <span class="diff-title">Sedang</span>
+                <span class="diff-desc">+20 🪙 / 100 Skor</span>
+                <span class="diff-hs-tag">🏆 Rekor: <strong id="menu-hs-medium">0</strong></span>
+              </button>
+              <button class="diff-btn" data-mode="hard">
+                <span class="diff-icon">🔥</span>
+                <span class="diff-title">Sulit</span>
+                <span class="diff-desc">+25 🪙 / 100 Skor</span>
+                <span class="diff-hs-tag">🏆 Rekor: <strong id="menu-hs-hard">0</strong></span>
+              </button>
+              <button class="diff-btn locked" data-mode="extreme" id="btn-mode-extreme">
+                <span class="diff-icon" id="icon-mode-extreme">🔒</span>
+                <span class="diff-title">Extreme</span>
+                <span class="diff-desc" id="desc-mode-extreme">+30 🪙 / 100 Skor</span>
+                <span class="diff-hs-tag">🏆 Rekor: <strong id="menu-hs-extreme">0</strong></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Event Modes Tab Content -->
+          <div class="tab-content" id="tab-content-events">
+            <div class="difficulty-buttons event-buttons">
+              <button class="diff-btn event-btn" data-mode="bomb_crazy">
+                <span class="diff-icon">💣</span>
+                <span class="diff-title">Bom Gila</span>
+                <span class="diff-desc">❤️ 4 Nyawa &amp; 80% Bom (Bom Ganda)!</span>
+                <span class="diff-hs-tag">🏆 Rekor: <strong id="menu-hs-bomb-crazy">0</strong></span>
+              </button>
+              <button class="diff-btn event-btn" data-mode="crazy_weapons">
+                <span class="diff-icon">⚔️</span>
+                <span class="diff-title">Senjata Gila</span>
+                <span class="diff-desc">🚀 Senjata Acak Tiap 100 Skor! (Tanpa Koin)</span>
+                <span class="diff-hs-tag">🏆 Rekor: <strong id="menu-hs-crazy-weapons">0</strong></span>
+              </button>
+              <button class="diff-btn event-btn" data-mode="poison_mouse">
+                <span class="diff-icon">🧪</span>
+                <span class="diff-title">Tikus Beracun</span>
+                <span class="diff-desc">🤢 Awas Tikus Hijau (-1 ❤️)! Hadiah Tamat: 250 🪙</span>
+                <span class="diff-hs-tag">🏆 Rekor: <strong id="menu-hs-poison-mouse">0</strong></span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-coin-status">
+          <span>Saldo Koin Kamu: </span>
+          <strong class="menu-coin-highlight">🪙 <span id="menu-coin-display">0</span> Koin</strong>
+        </div>
+
+        <div class="menu-action-buttons">
+          <button class="btn btn-primary" id="btn-start">Mulai Permainan 🎮</button>
+          <button class="btn btn-shop" id="btn-shop-menu">🏪 Toko Senjata</button>
+          <button class="btn btn-achieve" id="btn-achievements-menu">🏅 Piagam Penghargaan <span class="achieve-counter" id="achieve-counter-badge">0/10</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shop Overlay (Toko Senjata) -->
+    <div class="overlay" id="shop-overlay">
+      <div class="modal-card shop-card">
+        <div class="shop-header">
+          <div class="modal-icon shop-icon">🏪⚔️</div>
+          <h2>Toko Senjata</h2>
+          <p>Beli dan gunakan senjata basic baru untuk mendapatkan keuntungan spesial saat bermain!</p>
+          <div class="shop-coin-banner">
+            <span>🪙 Saldo Koin Kamu: </span>
+            <strong class="shop-coin-highlight">🪙 <span id="shop-coin-display">0</span> Koin</strong>
+          </div>
+        </div>
+
+        <!-- Weapons Grid rendered by JS -->
+        <div class="shop-weapons-grid" id="shop-weapons-grid">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" id="btn-close-shop">Kembali ke Menu 🏠</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" id="gameover-overlay">
+      <div class="modal-card gameover-card">
+        <div class="modal-icon">💥</div>
+        <h2>Permainan Berakhir!</h2>
+        <p id="gameover-reason">Nyawamu telah habis!</p>
+        
+        <div class="result-stats">
+          <div class="stat-box">
+            <span class="stat-title">Skor Akhir</span>
+            <span class="stat-num" id="final-score">0</span>
+          </div>
+          <div class="stat-box highlight">
+            <span class="stat-title">Tikus Terpukul</span>
+            <span class="stat-num" id="final-mice-hit">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-title">Total Koin</span>
+            <span class="stat-num highlight-coin">🪙 <span id="final-coins">0</span></span>
+          </div>
+        </div>
+
+        <!-- Mode selection in GameOver -->
+        <div class="difficulty-buttons mini-diff">
+          <button class="diff-btn active" data-mode="easy">🌱 Mudah</button>
+          <button class="diff-btn" data-mode="medium">⚡ Sedang</button>
+          <button class="diff-btn" data-mode="hard">🔥 Sulit</button>
+          <button class="diff-btn locked" data-mode="extreme" id="mini-btn-mode-extreme">🔒 Extreme</button>
+          <button class="diff-btn" data-mode="bomb_crazy">💣 Bom Gila</button>
+          <button class="diff-btn" data-mode="crazy_weapons">⚔️ Senjata Gila</button>
+          <button class="diff-btn" data-mode="poison_mouse">🧪 Tikus Beracun</button>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="btn-restart">Main Lagi 🔄</button>
+          <button class="btn btn-secondary" id="btn-menu-gameover">Menu Utama 🏠</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checkpoint Overlay (Ronde Ditaklukkan di Skor 1500) -->
+    <div class="overlay" id="checkpoint-overlay">
+      <div class="modal-card checkpoint-card">
+        <div class="modal-icon checkpoint-icon">👑⚡🎉</div>
+        <h2 class="checkpoint-heading">RONDE DITAKLUKKAN!</h2>
+        <p id="checkpoint-message">Anda telah menaklukkan ronde ini! Apakah anda ingin melanjutkannya sampai 2000?</p>
+        
+        <div class="checkpoint-reward-badge">
+          <span class="reward-title">🎁 Hadiah Milestone:</span>
+          <span class="reward-val">+150 Koin 🪙</span>
+        </div>
+
+        <div class="result-stats">
+          <div class="stat-box highlight-gold">
+            <span class="stat-title">Skor Saat Ini</span>
+            <span class="stat-num" id="checkpoint-score">1500</span>
+          </div>
+          <div class="stat-box highlight">
+            <span class="stat-title">Tikus Terpukul</span>
+            <span class="stat-num" id="checkpoint-mice-hit">0</span>
+          </div>
+          <div class="stat-box highlight-gold">
+            <span class="stat-title">Total Koin</span>
+            <span class="stat-num highlight-coin">🪙 <span id="checkpoint-coins">0</span></span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="btn-checkpoint-continue">Lanjutkan 🚀</button>
+          <button class="btn btn-secondary" id="btn-checkpoint-menu">Menu 🏠</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Victory Overlay (Level Tamat di Skor 2000) -->
+    <div class="overlay" id="victory-overlay">
+      <div class="modal-card victory-card">
+        <div class="modal-icon victory-trophy">🏆👑🎉</div>
+        <h2 class="victory-heading">LEVEL TAMAT!</h2>
+        <p id="victory-message">Luar biasa! Kamu berhasil menamatkan level dengan mencapai target skor 2000!</p>
+        
+        <div class="result-stats">
+          <div class="stat-box highlight-gold">
+            <span class="stat-title">Skor Tamat</span>
+            <span class="stat-num" id="victory-score">2000</span>
+          </div>
+          <div class="stat-box highlight">
+            <span class="stat-title">Tikus Terpukul</span>
+            <span class="stat-num" id="victory-mice-hit">0</span>
+          </div>
+          <div class="stat-box highlight-gold">
+            <span class="stat-title">Total Koin</span>
+            <span class="stat-num highlight-coin">🪙 <span id="victory-coins">0</span></span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="btn-victory-replay">Main Lagi 🔄</button>
+          <button class="btn btn-secondary" id="btn-victory-menu">Menu Utama 🏠</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievements Overlay (10 Piagam Penghargaan) -->
+    <div class="overlay" id="achievements-overlay">
+      <div class="modal-card achievements-card">
+        <div class="achieve-header">
+          <div class="modal-icon achieve-icon">🏅</div>
+          <h2>Piagam Penghargaan</h2>
+          <p>Selesaikan tantangan untuk mengklaim ratusan koin bonus!</p>
+          <div class="achieve-progress-banner">
+            <span>🏆 Progress Piagam: </span>
+            <strong id="achieve-total-progress">0 / 10 Terbuka</strong>
+          </div>
+        </div>
+
+        <!-- 10 Achievements Scrollable List -->
+        <div class="achievements-list" id="achievements-list">
+          <!-- Rendered dynamically by script.js -->
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" id="btn-close-achievements">Tutup ❌</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio / Visual Sparks Canvas Overlay -->
+  <canvas id="particle-canvas"></canvas>
+
+  <script src="script.js"></script>
+</body>
+</html>
